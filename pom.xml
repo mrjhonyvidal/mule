@@ -206,7 +206,7 @@
         <log4jVersion>2.8.2</log4jVersion>
         <disruptorVersion>3.3.0</disruptorVersion>
         <maven.buildnumber.plugin.version>1.1</maven.buildnumber.plugin.version>
-        <maven.surefire.plugin.version>2.22.0</maven.surefire.plugin.version>
+        <maven.surefire.plugin.version>2.18.1</maven.surefire.plugin.version>
         <mockitoVersion>1.10.19</mockitoVersion>
         <muleExtensionsApiVersion>1.0.0-alpha-1</muleExtensionsApiVersion>
         <multithreadedtcVersion>1.01</multithreadedtcVersion>
@@ -1633,7 +1633,7 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${maven.surefire.plugin.version}</version>
                     <configuration>
-                        <argLine>-Xmx1024m -XX:MaxPermSize=256m</argLine>
+                        <argLine>-Xms1024M -Xmx2048M</argLine>
                         <excludes>
                             <!-- Surefire should be able to detect that classes are abstract but it seems it isn't -->
                             <exclude>**/Abstract*.*</exclude>
