@@ -1634,8 +1634,8 @@
                     <version>${maven.surefire.plugin.version}</version>
                     <configuration>
 <!--                        <argLine>-Xms64m -Xmx512m</argLine>-->
-                        <argLine>-Xms1024m -Xmx512m</argLine>
-<!--                        <argLine>-Xms1024M -Xmx2048M</argLine>-->
+<!--                        <argLine>-Xms1024m -Xmx512m</argLine>-->
+                        <argLine>-Xms1024M -Xmx2048M</argLine>
                         <excludes>
                             <!-- Surefire should be able to detect that classes are abstract but it seems it isn't -->
                             <exclude>**/Abstract*.*</exclude>
