@@ -8,6 +8,7 @@ package org.mule.runtime.config.internal;
 
 import static java.lang.reflect.Proxy.getInvocationHandler;
 import static java.lang.reflect.Proxy.isProxyClass;
+import static org.mule.runtime.api.component.execution.ExecutionService.EXECUTION_SERVICE_KEY;
 import static org.mule.runtime.api.connectivity.ConnectivityTestingService.CONNECTIVITY_TESTING_SERVICE_KEY;
 import static org.mule.runtime.api.metadata.MetadataService.METADATA_SERVICE_KEY;
 import static org.mule.runtime.api.serialization.ObjectSerializer.DEFAULT_OBJECT_SERIALIZER_NAME;
@@ -118,6 +119,7 @@ import org.mule.runtime.core.internal.context.thread.notification.DefaultThreadN
 import org.mule.runtime.core.internal.el.mvel.MVELExpressionLanguage;
 import org.mule.runtime.core.internal.event.DefaultEventContextService;
 import org.mule.runtime.core.internal.exception.MessagingExceptionLocationProvider;
+import org.mule.runtime.core.internal.execution.MuleExecutionService;
 import org.mule.runtime.core.internal.execution.MuleMessageProcessingManager;
 import org.mule.runtime.core.internal.lock.MuleLockFactory;
 import org.mule.runtime.core.internal.lock.SingleServerLockProvider;
@@ -248,6 +250,7 @@ class SpringMuleContextServiceConfigurator {
       .put(OBJECT_CLUSTER_SERVICE, getBeanDefinition(DefaultClusterService.class))
       .put(LAZY_COMPONENT_INITIALIZER_SERVICE_KEY, getBeanDefinition(NoOpLazyComponentInitializer.class))
       .put(METADATA_CACHE_MANAGER_KEY, getBeanDefinition(DefaultPersistentMetadataCacheManager.class))
+      .put(EXECUTION_SERVICE_KEY, getBeanDefinition(MuleExecutionService.class))
       .build();
 
   private final SpringConfigurationComponentLocator componentLocator;
