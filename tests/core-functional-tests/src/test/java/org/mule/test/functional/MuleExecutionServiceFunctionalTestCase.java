@@ -9,6 +9,7 @@ package org.mule.test.functional;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.mule.runtime.api.component.execution.ExecutionService.EXECUTION_SERVICE_KEY;
 import org.mule.functional.junit4.MuleArtifactFunctionalTestCase;
 import org.mule.runtime.api.component.execution.ExecutionService;
 import org.mule.runtime.api.component.location.Location;
@@ -18,6 +19,7 @@ import org.mule.runtime.core.api.util.IOUtils;
 import org.mule.tck.junit4.rule.SystemProperty;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,8 +32,8 @@ public class MuleExecutionServiceFunctionalTestCase extends MuleArtifactFunction
   @Rule
   public SystemProperty workingDir = new SystemProperty("workingDir",
                                                         this.getClass().getClassLoader().getResource(".").getPath());
-
   @Inject
+  @Named(EXECUTION_SERVICE_KEY)
   private ExecutionService executionService;
 
   @Override

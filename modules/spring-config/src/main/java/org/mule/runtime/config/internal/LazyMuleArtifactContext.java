@@ -20,6 +20,8 @@ import static org.apache.commons.lang3.exception.ExceptionUtils.hasCause;
 import static org.mule.runtime.api.component.TypedComponentIdentifier.ComponentType.OPERATION;
 import static org.mule.runtime.api.component.TypedComponentIdentifier.ComponentType.SCOPE;
 import static org.mule.runtime.api.component.TypedComponentIdentifier.ComponentType.SOURCE;
+import static org.mule.runtime.api.component.execution.ExecutionService.EXECUTION_SERVICE_KEY;
+import static org.mule.runtime.api.component.execution.ExecutionService.NON_LAZY_EXECUTION_SERVICE_KEY;
 import static org.mule.runtime.api.connectivity.ConnectivityTestingService.CONNECTIVITY_TESTING_SERVICE_KEY;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 import static org.mule.runtime.api.metadata.MetadataService.METADATA_SERVICE_KEY;
@@ -41,6 +43,7 @@ import static org.mule.runtime.core.internal.metadata.cache.MetadataCacheManager
 import static org.mule.runtime.core.internal.store.SharedPartitionedPersistentObjectStore.SHARED_PERSISTENT_OBJECT_STORE_KEY;
 import static org.mule.runtime.core.privileged.registry.LegacyRegistryUtils.unregisterObject;
 import org.mule.runtime.api.component.ConfigurationProperties;
+import org.mule.runtime.api.component.execution.ExecutionService;
 import org.mule.runtime.api.component.location.Location;
 import org.mule.runtime.api.config.custom.CustomizationService;
 import org.mule.runtime.api.connectivity.ConnectivityTestingService;
@@ -67,6 +70,7 @@ import org.mule.runtime.core.api.MuleContext;
 import org.mule.runtime.core.api.config.bootstrap.ArtifactType;
 import org.mule.runtime.core.api.transaction.TransactionManagerFactory;
 import org.mule.runtime.core.internal.connectivity.DefaultConnectivityTestingService;
+import org.mule.runtime.core.internal.execution.MuleExecutionService;
 import org.mule.runtime.core.internal.metadata.MuleMetadataService;
 import org.mule.runtime.core.internal.metadata.cache.DefaultPersistentMetadataCacheManager;
 import org.mule.runtime.core.internal.metadata.cache.DelegateMetadataCacheManager;
@@ -181,6 +185,14 @@ public class LazyMuleArtifactContext extends MuleArtifactContext
                                                         .get(), muleContext::getConfigurationComponentLocator));
     customizationService.registerCustomServiceClass(NON_LAZY_VALUE_PROVIDER_SERVICE,
                                                     MuleValueProviderService.class);
+
+    customizationService.overrideDefaultServiceImpl(EXECUTION_SERVICE_KEY,
+                                                    new LazyMuleExecutionService(
+                                                            this,
+                                                            () -> getRegistry().<ExecutionService>lookupByName(NON_LAZY_EXECUTION_SERVICE_KEY).get()
+                                                    ));
+    customizationService.registerCustomServiceClass(NON_LAZY_EXECUTION_SERVICE_KEY,
+                                                    MuleExecutionService.class);
 
     customizationService.overrideDefaultServiceImpl(LAZY_COMPONENT_INITIALIZER_SERVICE_KEY, this);
 
