@@ -9,11 +9,13 @@ package org.mule.test.functional;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.rules.ExpectedException.none;
 import static org.mule.runtime.api.component.execution.ExecutionService.EXECUTION_SERVICE_KEY;
 import org.mule.functional.junit4.MuleArtifactFunctionalTestCase;
 import org.mule.runtime.api.component.execution.ExecutionService;
 import org.mule.runtime.api.component.location.Location;
 import org.mule.runtime.api.event.Event;
+import org.mule.runtime.api.exception.MuleRuntimeException;
 import org.mule.runtime.api.streaming.bytes.CursorStreamProvider;
 import org.mule.runtime.core.api.util.IOUtils;
 import org.mule.tck.junit4.rule.SystemProperty;
@@ -23,15 +25,21 @@ import javax.inject.Named;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 public class MuleExecutionServiceFunctionalTestCase extends MuleArtifactFunctionalTestCase {
 
   private static final String SET_PAYLOAD_FLOW_NAME = "set-payload-flow";
   private static final String FILE_FLOW_NAME = "file-flow";
+  private static final String FILE_CONFIG_NAME = "fileConfig";
 
   @Rule
   public SystemProperty workingDir = new SystemProperty("workingDir",
                                                         this.getClass().getClassLoader().getResource(".").getPath());
+
+  @Rule
+  public ExpectedException expectedException = none();
+
   @Inject
   @Named(EXECUTION_SERVICE_KEY)
   private ExecutionService executionService;
@@ -39,6 +47,22 @@ public class MuleExecutionServiceFunctionalTestCase extends MuleArtifactFunction
   @Override
   protected String getConfigFile() {
     return "execution-service-config.xml";
+  }
+
+  @Test
+  public void executeMissingLocation() throws Exception{
+    final Location location = Location.builder().globalName("missing").build();
+    expectedException.expect(MuleRuntimeException.class);
+    expectedException.expectMessage("not found");
+    executionService.execute(location, testEvent()).get();
+  }
+
+  @Test
+  public void executeNonExecutable() throws Exception{
+    final Location location = Location.builder().globalName(FILE_CONFIG_NAME).build();
+    expectedException.expect(MuleRuntimeException.class);
+    expectedException.expectMessage("Located component is not executable");
+    executionService.execute(location, testEvent()).get();
   }
 
   @Test
