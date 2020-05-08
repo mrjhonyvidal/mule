@@ -6,6 +6,10 @@
  */
 package org.mule.test.functional;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -18,7 +22,10 @@ import org.mule.runtime.api.event.Event;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 import org.mule.runtime.api.streaming.bytes.CursorStreamProvider;
 import org.mule.runtime.core.api.util.IOUtils;
+import org.mule.tck.junit4.rule.DynamicPort;
 import org.mule.tck.junit4.rule.SystemProperty;
+
+import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -40,6 +47,12 @@ public class MuleExecutionServiceFunctionalTestCase extends MuleArtifactFunction
   @Rule
   public ExpectedException expectedException = none();
 
+  @Rule
+  public DynamicPort port = new DynamicPort("httpPort");
+
+  @Rule
+  public WireMockClassRule wireMockRule = new WireMockClassRule(wireMockConfig().port(port.getNumber()));
+
   @Inject
   @Named(EXECUTION_SERVICE_KEY)
   private ExecutionService executionService;
@@ -50,7 +63,7 @@ public class MuleExecutionServiceFunctionalTestCase extends MuleArtifactFunction
   }
 
   @Test
-  public void executeMissingLocation() throws Exception{
+  public void executeMissingLocation() throws Exception {
     final Location location = Location.builder().globalName("missing").build();
     expectedException.expect(MuleRuntimeException.class);
     expectedException.expectMessage("not found");
@@ -58,7 +71,7 @@ public class MuleExecutionServiceFunctionalTestCase extends MuleArtifactFunction
   }
 
   @Test
-  public void executeNonExecutable() throws Exception{
+  public void executeNonExecutable() throws Exception {
     final Location location = Location.builder().globalName(FILE_CONFIG_NAME).build();
     expectedException.expect(MuleRuntimeException.class);
     expectedException.expectMessage("Located component is not executable");
@@ -91,6 +104,18 @@ public class MuleExecutionServiceFunctionalTestCase extends MuleArtifactFunction
     final Location location = Location.builder().globalName(FILE_FLOW_NAME).addProcessorsPart().addIndexPart(1).build();
     final Event result = executionService.execute(location, testEvent()).get();
     assertThat(IOUtils.toString((CursorStreamProvider) result.getMessage().getPayload().getValue()), is(equalTo("SUCCESS")));
+  }
+
+  @Test
+  public void executeConnectibleOperation() throws Exception {
+    wireMockRule.stubFor(
+                         get(urlPathMatching("/mockedServer"))
+                             .willReturn(aResponse()
+                                 .withStatus(200)
+                                 .withBody("SUCCESS")));
+    final Location requesterLocation = Location.builder().globalName("http-flow").addProcessorsPart().addIndexPart(0).build();
+    final Event result = executionService.execute(requesterLocation, testEvent()).get();
+    assertThat(result.getMessage().getPayload().getValue(), is(equalTo("SUCCESS")));
   }
 
 }

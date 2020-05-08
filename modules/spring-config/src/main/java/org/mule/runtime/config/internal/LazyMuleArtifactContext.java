@@ -188,9 +188,10 @@ public class LazyMuleArtifactContext extends MuleArtifactContext
 
     customizationService.overrideDefaultServiceImpl(EXECUTION_SERVICE_KEY,
                                                     new LazyMuleExecutionService(
-                                                            this,
-                                                            () -> getRegistry().<ExecutionService>lookupByName(NON_LAZY_EXECUTION_SERVICE_KEY).get()
-                                                    ));
+                                                                                 this,
+                                                                                 () -> getRegistry()
+                                                                                     .<ExecutionService>lookupByName(NON_LAZY_EXECUTION_SERVICE_KEY)
+                                                                                     .get()));
     customizationService.registerCustomServiceClass(NON_LAZY_EXECUTION_SERVICE_KEY,
                                                     MuleExecutionService.class);
 
