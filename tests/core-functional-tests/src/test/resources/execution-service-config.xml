@@ -25,7 +25,7 @@
         <file:read path="payload.txt" config-ref="fileConfig"/>
     </flow>
 
-    <flow name="htto-flow">
+    <flow name="http-flow">
         <http:request config-ref="requesterConfig" path="mockedServer" method="GET"/>
     </flow>
 

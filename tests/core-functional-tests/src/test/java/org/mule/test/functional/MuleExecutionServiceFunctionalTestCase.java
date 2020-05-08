@@ -115,7 +115,7 @@ public class MuleExecutionServiceFunctionalTestCase extends MuleArtifactFunction
                                  .withBody("SUCCESS")));
     final Location requesterLocation = Location.builder().globalName("http-flow").addProcessorsPart().addIndexPart(0).build();
     final Event result = executionService.execute(requesterLocation, testEvent()).get();
-    assertThat(result.getMessage().getPayload().getValue(), is(equalTo("SUCCESS")));
+    assertThat(IOUtils.toString((CursorStreamProvider) result.getMessage().getPayload().getValue()), is(equalTo("SUCCESS")));
   }
 
 }
